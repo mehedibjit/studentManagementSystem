@@ -6,7 +6,7 @@ public class DBOperations {
     DBConnection dbConnection = new DBConnection();
     Connection con = dbConnection.getConnection();
 
-    public void fetchData() {
+    public void fetchStudentData() {
         try {
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM student");
@@ -16,14 +16,31 @@ public class DBOperations {
                 String gender = rs.getString("stgender");
                 String birthDate = rs.getString("stbirthdate");
                 String contact = rs.getString("stcontact");
-                System.out.println("Name: " + name + ", Gender: " + gender + ", Birth Date: " + birthDate + ", Contact: "+contact);
+                int courseId = rs.getInt("course_id");
+                System.out.println("Name: " + name + ", Gender: " + gender + ", Birth Date: " + birthDate + ", Contact: "+contact + ", Course ID:" + courseId);
             }
         } catch (SQLException e){
             throw new RuntimeException(e);
         }
     }
-    public void insertStudentData(String name, String gender, Date birthDate, String contact) {
-        String insertQuery = "INSERT INTO student (stname, stgender, stbirthdate, stcontact) VALUES (?, ?, ?, ?)";
+
+    public void fetchCoursesData() {
+        try {
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM courses");
+
+            while (rs.next()) {
+                int courseId = rs.getInt("course_id");
+                String courseName = rs.getString("course_name");
+                String instructor = rs.getString("instructor");
+                System.out.println("Course ID: " + courseId + ", Course Name: " + courseName + ", Instructor: " + instructor);
+            }
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+    public void insertStudentData(String name, String gender, Date birthDate, String contact, int course_id) {
+        String insertQuery = "INSERT INTO student (stname, stgender, stbirthdate, stcontact, course_id) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement preparedStatement = con.prepareStatement(insertQuery)) {
             preparedStatement.setString(1, name);
@@ -33,6 +50,7 @@ public class DBOperations {
             preparedStatement.setDate(3, sqlDate);
 
             preparedStatement.setString(4, contact);
+            preparedStatement.setInt(5, course_id);
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
